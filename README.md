@@ -1,86 +1,194 @@
+AI conversation link:
+https://chatgpt.com/share/68fdeaaa-16fc-800e-bb69-df8688ffdef2
+https://chatgpt.com/share/68fdeb81-9bbc-800e-ae0a-edba70ca0bff
+
 🍕 Pizza Pantry Mobile
-A full-stack inventory management mobile application built for pizza restaurants and food service businesses. Manage your inventory, track stock levels, and streamline your operations with this beautiful, responsive React Native app.
 
-https://img.shields.io/badge/Pizza-Pantry-orange https://img.shields.io/badge/React%2520Native-0.73-blue https://img.shields.io/badge/Next.js-14-black https://img.shields.io/badge/TypeScript-5.0-blue
+A mobile inventory management app for a pizza shop, built with React Native (Expo) and TypeScript.
+The app allows authenticated users to manage pizza inventory by viewing items, adding new ones, editing quantities, and deleting entries — all through a smooth, touch-first interface.
 
-📱 Features
-Mobile App (Frontend)
-🔐 Secure Authentication - Clerk integration with email/password and social login
+🚀 Project Overview
 
-📦 Inventory Management - Add, edit, delete, and view inventory items
+Goal:
+Complement the pizza shop’s workflow by allowing staff to manage inventory directly from their mobile devices.
 
-📊 Stock Tracking - Real-time quantity tracking with low stock alerts
+Key Features:
 
-🔄 Quantity Adjustments - Record stock changes with reasons and history
+🔐 User authentication (Sign In / Sign Up)
 
-🔍 Search & Filter - Find items quickly by name or category
+📦 Inventory list with search, filter, and pull-to-refresh
 
-📱 Mobile-Optimized UI - Beautiful, touch-friendly interface
+📝 Add/Edit items with strong validation
 
-⚡ Offline Support - Queue actions when offline, sync when reconnected
+➕/➖ Adjust quantities with reason logging
 
-🎯 Type Safety - Full TypeScript implementation
+🗑 Delete items
 
-Backend API
-🚀 Next.js API Routes - High-performance serverless functions
+⚡ Polished UI with empty, loading, and error states
 
-🔒 Authentication - Clerk-protected endpoints
+🧩 Tech Stack
+Category	Choice	Reason
+Framework	React Native
+ (Expo)	Cross-platform development, easy setup, and fast iteration
+Language	TypeScript	Type safety and maintainable codebase
+Auth	Clerk (React Native SDK)	Modern, secure authentication with minimal setup
+Backend	Express.js + MongoDB	Lightweight and flexible data persistence
+Validation	Zod	Schema-based validation for forms and API requests
+UI Library	React Native Paper / Native Base	Consistent, mobile-optimized UI components
+Navigation	React Navigation (Stack + Bottom Tabs)	Intuitive and smooth mobile navigation
+Testing (optional)	Jest + React Native Testing Library	Unit tests for core logic and UI components
+📱 Screens Overview
+Screen	Description
+Sign In / Sign Up	User authentication flow
+Inventory List	Displays all inventory items, includes search/filter and pull-to-refresh
+Item Detail	Shows item information and recent quantity adjustments
+Add/Edit Item	Form for creating or updating an item (with validation)
+Adjust Quantity	Modal or screen for increasing/decreasing stock with reason
+Loading / Empty / Error	Provides clear UI feedback for different states
+🧠 Data Model
+Item Schema (MongoDB)
+{
+  _id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string; // e.g. "kg", "boxes"
+  lastUpdated: Date;
+  changeLog: [
+    {
+      date: Date;
+      change: number;
+      reason: string;
+      userId: string;
+    }
+  ];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-🗄️ MongoDB - Scalable database with proper indexing
+⚙️ Backend Setup (Express + MongoDB)
 
-📈 Real-time Updates - Instant inventory synchronization
+Directory: /server
 
-🛡️ Input Validation - Zod schema validation
+Endpoints:
 
-📝 Audit Logging - Complete adjustment history
+POST   /api/auth/register       // Register user
+POST   /api/auth/login          // Login user
+GET    /api/items               // Fetch all inventory items
+POST   /api/items               // Add new item
+PUT    /api/items/:id           // Edit existing item
+PATCH  /api/items/:id/adjust    // Adjust item quantity
+DELETE /api/items/:id           // Delete item
 
-🌐 CORS Enabled - Ready for mobile app integration
 
-1. Frontend Setup
+To run backend locally:
 
-# Clone the repository
-git clone <repository-url>
-cd pizza-pantry-mobile
-
-# Install dependencies
+cd server
 npm install
+npm run dev
 
-# Set up environment variables
-cp .env.example .env
 
-2. Backend Setup
+Ensure your .env file includes:
 
-# Navigate to backend
-cd backend
+MONGO_URI=mongodb+srv://<your-cluster>
+JWT_SECRET=your_jwt_secret
+PORT=5000
 
-# Install dependencies
+📦 Frontend Setup (React Native + Expo)
+
+Directory: /app
+
+Installation:
+
+cd app
 npm install
+npx expo start
 
-# Set up environment variables
-cp .env.example .env.local
 
-3. Database Setup
-Option A: Local MongoDB
+Environment Variables (.env):
 
-# Install MongoDB locally
-brew install mongodb-community@7.0
+EXPO_PUBLIC_API_URL=http://localhost:5000/api
+EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 
-# Start MongoDB
-brew services start mongodb-community@7.0
+🧪 Validation (Zod)
 
-Option B: MongoDB Atlas
+Used for form and request validation:
 
-Create account at MongoDB Atlas
+import { z } from "zod";
 
-Create a cluster and database
+export const ItemSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  category: z.string().nonempty("Category required"),
+  quantity: z.number().min(0),
+  unit: z.string().nonempty(),
+});
 
-Get connection string and update MONGODB_URI
+🌐 API Integration
 
-4. Clerk Setup
-Create account at Clerk
+Axios is used to handle API communication.
 
-Create new application
+import axios from "axios";
 
-Configure social providers (optional)
+const api = axios.create({
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
+});
 
-Copy keys to both frontend and backend environment files
+export const getItems = async () => api.get("/items");
+export const addItem = async (data) => api.post("/items", data);
+export const adjustItem = async (id, data) => api.patch(`/items/${id}/adjust`, data);
+
+✨ Optional Enhancements (Nice-to-Have)
+
+Offline-first sync: Store changes locally using AsyncStorage and sync on reconnect.
+
+PowerSync integration: For real-time local-first data sync.
+
+Unit tests: For UI and logic using Jest + React Native Testing Library.
+
+🧭 Navigation Flow
+AuthStack
+ ├── SignInScreen
+ └── SignUpScreen
+
+AppTabs
+ ├── InventoryListScreen
+ ├── AddItemScreen
+ ├── ItemDetailScreen
+ ├── AdjustQuantityModal
+
+📸 UI/UX Highlights
+
+Smooth animations and transitions
+
+Mobile-friendly spacing and touch areas
+
+Clear empty/loading/error feedback
+
+Pull-to-refresh for data reload
+
+Accessible color contrast and font sizing
+
+💾 Offline Mode (optional)
+
+If implemented:
+
+Changes made offline are stored in AsyncStorage
+
+Once reconnected, queued updates sync with the backend
+
+🧰 Scripts
+Command	Description
+npm start	Run the app in Expo
+npm run android	Run on Android emulator/device
+npm run ios	Run on iOS simulator
+npm run test	Run unit tests
+npm run lint	Run linter checks
+🧑‍💻 Developer Notes
+
+The app uses Clerk for secure, modern authentication.
+
+Strong form validation ensures data integrity before backend submission.
+
+Clean architecture: separation of concerns (screens, components, services, models).
+
+Built with scalability in mind (can easily extend to full restaurant management).
